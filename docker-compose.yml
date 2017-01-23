@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+  nginx:
+    image: nginx:1.11.8-alpine
+    ports:
+      - "8081:80"
+    volumes:
+      - ./code:/usr/share/nginx/html
+      - ./html:/myapp
+      - ./config/nginx/site.conf:/etc/nginx/conf.d/site.conf
+      - ./config/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./logs/nginx/error.log:/var/log/nginx/error.log
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    links:
+      - phpfpm
+  phpfpm:
+    image: anhducbkhn/bn-php7-fpm
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./code:/usr/share/nginx/html
+      - ./config/php:/usr/local/etc/php
+    links:
+      - db_mysql
+  db_mysql:
+    image: mysql:5.7.17
+    volumes:
+      - ./db_data:/var/lib/mysql
+    # restart: no
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wp2017
+      MYSQL_USER: wp
+      MYSQL_PASSWORD: wp2017
